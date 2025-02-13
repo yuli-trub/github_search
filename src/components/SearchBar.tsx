@@ -1,31 +1,35 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import { setUsername } from "../store/reposSlice";
 
-type Props = { onSearch: (username: string) => void };
-
-export const SearchBar = ({ onSearch }: Props) => {
-  const [username, setUsername] = useState("");
+export const SearchBar = () => {
+  const dispatch = useDispatch();
+  const reduxUsername = useSelector((state: RootState) => state.repos.username);
+  const [username, setUsernameValue] = useState(reduxUsername);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUsername(e.target.value);
-    onSearch(e.target.value);
+    setUsernameValue(e.target.value);
   };
 
-  // to wait unitl user stops typing - for less calls
+  // подождать пока закончит печатать - меньше ненужных запросов
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      if (username.trim().length > 2) {
-        onSearch(username);
+      if (username === "") {
+        dispatch(setUsername(""));
+      } else if (username.trim().length > 2) {
+        dispatch(setUsername(username));
       }
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [username]);
+  }, [username, dispatch]);
 
   return (
     <div className="relative w-full">
       <input
         type="text"
-        placeholder="Search GitHub username..."
+        placeholder="Поиск репозиториев по имени пользователя..."
         value={username}
         onChange={handleChange}
         className="w-full p-3 pl-10 text-gray-700 bg-white border rounded-lg shadow-md outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"

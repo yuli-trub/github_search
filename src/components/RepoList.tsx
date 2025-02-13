@@ -7,7 +7,7 @@ type Props = { username: string };
 
 export const RepoList = ({ username }: Props) => {
   const [page, setPage] = useState(1);
-  const { data, isLoading, error } = useGitHubRepos(username, page);
+  const { data, isLoading } = useGitHubRepos(username, page);
 
   const [allRepos, setAllRepos] = useState<any[]>([]);
 
@@ -29,8 +29,10 @@ export const RepoList = ({ username }: Props) => {
 
   const observerRef = useInfiniteScroll(fetchMore);
 
-  if (error)
-    return <p className="text-center text-red-500 mt-4">{error.message}</p>;
+  // поймать ошибки и лимиты запросов
+  if (data?.error) {
+    return <p className="text-center text-red-500 mt-4">{data.error}</p>;
+  }
 
   return (
     <>

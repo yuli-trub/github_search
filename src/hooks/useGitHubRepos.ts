@@ -13,6 +13,7 @@ type Repo = {
 type FetchReposResponse = {
   repos: Repo[];
   hasMorePages: boolean;
+  error?: string;
 };
 
 const fetchRepos = async (
@@ -38,12 +39,20 @@ const fetchRepos = async (
     return { repos: data, hasMorePages };
   } catch (error: any) {
     if (error.response?.status === 404) {
-      throw new Error("Пользователь с таким именем не найден.");
+      return {
+        repos: [],
+        hasMorePages: false,
+        error: "Пользователь не найден. Проверьте имя.",
+      };
     }
     if (error.response?.status === 403) {
-      throw new Error("Превышен лимит запросов GitHub API. Попробуйте позже.");
+      return {
+        repos: [],
+        hasMorePages: false,
+        error: "Превышен лимит запросов GitHub API. Попробуйте позже.",
+      };
     }
-    throw new Error("Ошибка загрузки данных.");
+    return { repos: [], hasMorePages: false, error: "Ошибка загрузки данных." };
   }
 };
 
