@@ -25,15 +25,12 @@ export const RepoList = ({ username }: Props) => {
   const fetchMore = () => {
     if (isLoading || !data?.hasMorePages) return;
     setPage((prev) => prev + 1);
-    console.log("scrolling");
   };
 
   const observerRef = useInfiniteScroll(fetchMore);
 
   if (error)
-    return (
-      <p className="text-center text-red-500">Error fetching repositories</p>
-    );
+    return <p className="text-center text-red-500 mt-4">{error.message}</p>;
 
   return (
     <>

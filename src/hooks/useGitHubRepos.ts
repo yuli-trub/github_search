@@ -22,13 +22,12 @@ const fetchRepos = async (
   if (!username) return { repos: [], hasMorePages: false };
 
   try {
-    console.log(`Fetching repos for: ${username}, page: ${page}`);
     const { data, headers } = await axios.get<Repo[]>(
       `https://api.github.com/users/${username}/repos?per_page=20&page=${page}`,
       {
         headers: {
           // "User-Agent": "GitHubRepoSearchApp",
-          Authorization: `Bearer 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`,
+          Authorization: `Bearer ${process.env.REACT_APP_GITHUB_API_KEY}`,
         },
       }
     );
@@ -37,9 +36,14 @@ const fetchRepos = async (
       headers.link?.includes('rel="next"') || data.length === 20;
 
     return { repos: data, hasMorePages };
-  } catch (error) {
-    console.error("GitHub API Error:", error);
-    return { repos: [], hasMorePages: false };
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      throw new Error("Пользователь с таким именем не найден.");
+    }
+    if (error.response?.status === 403) {
+      throw new Error("Превышен лимит запросов GitHub API. Попробуйте позже.");
+    }
+    throw new Error("Ошибка загрузки данных.");
   }
 };
 
