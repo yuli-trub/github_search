@@ -17,7 +17,7 @@ export const RepoList = ({ username }: Props) => {
   }, [username]);
 
   useEffect(() => {
-    if (data) {
+    if (data?.repos) {
       setAllRepos((prev) => [...prev, ...data.repos]);
     }
   }, [data]);
